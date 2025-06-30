@@ -15,7 +15,12 @@ class MockCollection:
         return None
     
     def find(self, query=None):
-        return list(self.data.values())
+        result = []
+        for _id, document in self.data.items():
+            doc_copy = document.copy()
+            doc_copy['_id'] = _id
+            result.append(doc_copy)
+        return result
     
     def insert_one(self, document):
         _id = document.get("_id")
