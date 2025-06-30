@@ -2,14 +2,25 @@
 MongoDB database configuration and setup for Mergington High School API
 """
 
-from pymongo import MongoClient
 from argon2 import PasswordHasher
 
-# Connect to MongoDB
-client = MongoClient('mongodb://localhost:27017/')
-db = client['mergington_high']
-activities_collection = db['activities']
-teachers_collection = db['teachers']
+try:
+    from pymongo import MongoClient
+    # Connect to MongoDB
+    client = MongoClient('mongodb://localhost:27017/', serverSelectionTimeoutMS=1000)
+    db = client['mergington_high']
+    # Test the connection
+    client.admin.command('ping')
+    activities_collection = db['activities']
+    teachers_collection = db['teachers']
+    MOCK_MODE = False
+    print("Connected to MongoDB")
+except Exception as e:
+    # Fallback to mock database for testing
+    print(f"MongoDB connection failed: {e}")
+    print("Using mock database")
+    from .mock_database import activities_collection, teachers_collection
+    MOCK_MODE = True
 
 # Methods
 def hash_password(password):
