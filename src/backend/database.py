@@ -2,14 +2,25 @@
 MongoDB database configuration and setup for Mergington High School API
 """
 
-from pymongo import MongoClient
 from argon2 import PasswordHasher
 
-# Connect to MongoDB
-client = MongoClient('mongodb://localhost:27017/')
-db = client['mergington_high']
-activities_collection = db['activities']
-teachers_collection = db['teachers']
+try:
+    from pymongo import MongoClient
+    # Connect to MongoDB
+    client = MongoClient('mongodb://localhost:27017/', serverSelectionTimeoutMS=1000)
+    db = client['mergington_high']
+    # Test the connection
+    client.admin.command('ping')
+    activities_collection = db['activities']
+    teachers_collection = db['teachers']
+    MOCK_MODE = False
+    print("Connected to MongoDB")
+except Exception as e:
+    # Fallback to mock database for testing
+    print(f"MongoDB connection failed: {e}")
+    print("Using mock database")
+    from .mock_database import activities_collection, teachers_collection
+    MOCK_MODE = True
 
 # Methods
 def hash_password(password):
@@ -163,6 +174,17 @@ initial_activities = {
         },
         "max_participants": 16,
         "participants": ["william@mergington.edu", "jacob@mergington.edu"]
+    },
+    "Manga Maniacs": {
+        "description": "Unleash your inner otaku! Dive into epic manga worlds filled with incredible heroes, amazing adventures, and stunning artwork. From action-packed shonen to heartwarming slice-of-life stories, explore the captivating universe of Japanese storytelling that has taken the world by storm!",
+        "schedule": "Tuesdays, 7:00 PM - 8:30 PM",
+        "schedule_details": {
+            "days": ["Tuesday"],
+            "start_time": "19:00",
+            "end_time": "20:30"
+        },
+        "max_participants": 15,
+        "participants": []
     }
 }
 
